@@ -1,0 +1,116 @@
+#
+# The following modifier keys are supported:
+#
+#   |l/r]cmd
+#   [l/r]alt
+#   [l/r]ctrl
+#   [l/r]shift
+#
+# It is possible to define custom modifiers:
+#
+#   mod1 :: lcmd + lalt
+#   mod2 :: alt + shift
+#
+#
+# Activation flags can be specified when creating a new
+# keybind, to determine when the keybind should activate.
+# If no activation flag is specified, #down is selected.
+#
+# Possible activation flags:
+#
+#   #down
+#   #repeat
+#   #up
+#
+# Possible activation flag combinations:
+#
+#   #down
+#   #down #repeat
+#   #down #repeat #up
+#   #down #up
+#   #up
+#
+#
+# In the following snippet a couple of terms are used:
+#
+#   keysym  (a combination of modifiers and a single literal)
+#   keybind (a keysym followed by the command to be executed)
+#
+#   chain (a sequence of keysyms required to run the command)
+#   group (a sequence of literals to match multiple commands)
+#
+#
+# Multiple keysyms can be used to specify a sequence (chain)
+# that need to occur before the command is executed. Every
+# keysym in the chain will be intercepted and will not be
+# delivered to other applications running on the system.
+# The command will execute when the final keysym of the chain
+# is reached. The activation flag will affect the final keysym.
+#
+#   mod1 + a, h #up
+#       yabai -m window --resize left:-20:0
+#
+#   mod1 + a, l #up
+#       yabai -m window --resize left:20:0
+#
+#
+# Multiple keybinds can be grouped together when appropriate.
+# This is useful when multiple commands can be broken into
+# repetitive patterns. The '{' (open curly brace) signals
+# the beginning of a group and the '}' (close curly brace)
+# signals the end. These symbols can occur in commands and
+# will only be treated as grouping keywords when they are
+# NOT inside '' (single quotes) or "" (double quotes).
+#
+#    mod1 + { h, j, k, l }
+#        yabai -m window --focus { west, south, north, east }
+#
+# The number of elements in the command group must match the
+# number of elements in the keysym group. Group expansion is
+# simply an append operation. For each keysym in the group,
+# a keybind will be created with the appropriate command.
+# The above sample will generate four keybinds:
+#
+#    mod1 + h
+#        yabai -m window --focus west
+#
+#    mod1 + j
+#        yabai -m window --focus south
+#
+#    mod1 + k
+#        yabai -m window --focus north
+#
+#    mod1 + l
+#        yabai -m window --focus east
+#
+#
+# It is possible to combine chains and groups:
+#
+#    mod1 + a, { h, j, k, l }
+#        yabai -m window --focus { west, south, north, east }
+#
+#    mod1 + a, mod1 + { h, j, k, l }
+#        yabai -m window --swap { west, south, north, east }
+#
+
+mod1 :: alt
+mod2 :: alt + shift
+mod3 :: alt + cmd
+
+mod1 + { x, h, j, k, l }
+    yabai -m window --focus { recent, west, south, north, east }
+
+mod2 + { x, h, j, k, l } #down
+    yabai -m window --swap { recent, west, south, north, east }
+
+mod1 + mb1 #down
+    yabai -m window --drag move.begin
+
+mod1 + mb1 #up
+    yabai -m window --drag move.end
+
+mod2 + a #down #repeat
+    yabai -m window --move rel:-20:0
+
+mod3 + { z, x, c, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }
+    yabai -m space --focus { prev, recent, next, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
