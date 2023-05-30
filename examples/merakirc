@@ -92,6 +92,29 @@
 #    mod1 + a, mod1 + { h, j, k, l }
 #        yabai -m window --swap { west, south, north, east }
 #
+#
+# TODO: Notes.
+# Explain what notes are; where they are used and how they work.
+# Why this is useful.
+#
+#
+# TODO: Modifier only keybinds
+# Keybinds that trigger when a modifier key is pressed (and held
+# down for x amount of time) seems like a nice feature.
+# Such keybinds are not eligible for the #repeat activation flag;
+# only #down and #up makes sense here. We likely want these flags
+# to work a bit differently; they should be connected as a pair.
+# The #up command should only run if the corresponding #down event
+# passed the activation threshold and executed its command.
+#
+#    cmd #down
+#        yabai -m window --drag move.begin
+#
+#    cmd #up
+#        yabai -m window --drag move.end
+#
+# Should probably do a syntax pass to accomodate this requirement.
+#
 
 mod1 :: alt
 mod2 :: alt + shift
@@ -114,3 +137,12 @@ mod2 + a #down #repeat
 
 mod3 + { z, x, c, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }
     yabai -m space --focus { prev, recent, next, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+
+@END This is parsed as a note.
+The note will end when the provided keyword is reached.
+This note will be parsed and connected to the keybind
+that follows. This information can be retrieved and
+fed into external programs to visualize keybinds with
+a description of what they do (as well as listing the command). END
+mod3 + { h, j, k, l }
+    yabai -m window --warp { west, south, north, east }
