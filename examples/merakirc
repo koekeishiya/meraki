@@ -8,27 +8,27 @@
 #
 # It is possible to define custom modifiers:
 #
-#   mod1 :: lcmd + lalt
-#   mod2 :: alt + shift
+#   mod1 = lcmd + lalt
+#   mod2 = alt + shift
 #
 #
 # Activation flags can be specified when creating a new
 # keybind, to determine when the keybind should activate.
-# If no activation flag is specified, #down is selected.
+# If no activation flag is specified, ~down is selected.
 #
 # Possible activation flags:
 #
-#   #down
-#   #repeat
-#   #up
+#   ~down
+#   ~repeat
+#   ~up
 #
 # Possible activation flag combinations:
 #
-#   #down
-#   #down #repeat
-#   #down #repeat #up
-#   #down #up
-#   #up
+#   ~down
+#   ~down ~repeat
+#   ~down ~repeat ~up
+#   ~down ~up
+#   ~up
 #
 #
 # In the following snippet a couple of terms are used:
@@ -47,10 +47,10 @@
 # The command will execute when the final keysym of the chain
 # is reached. The activation flag will affect the final keysym.
 #
-#   mod1 + a, h #up
+#   mod1 + a, h ~up:
 #       yabai -m window --resize left:-20:0
 #
-#   mod1 + a, l #up
+#   mod1 + a, l ~up:
 #       yabai -m window --resize left:20:0
 #
 #
@@ -62,7 +62,7 @@
 # will only be treated as grouping keywords when they are
 # NOT inside '' (single quotes) or "" (double quotes).
 #
-#    mod1 + { h, j, k, l }
+#    mod1 + { h, j, k, l }:
 #        yabai -m window --focus { west, south, north, east }
 #
 # The number of elements in the command group must match the
@@ -71,71 +71,108 @@
 # a keybind will be created with the appropriate command.
 # The above sample will generate four keybinds:
 #
-#    mod1 + h
+#    mod1 + h:
 #        yabai -m window --focus west
 #
-#    mod1 + j
+#    mod1 + j:
 #        yabai -m window --focus south
 #
-#    mod1 + k
+#    mod1 + k:
 #        yabai -m window --focus north
 #
-#    mod1 + l
+#    mod1 + l:
 #        yabai -m window --focus east
 #
 #
 # It is possible to combine chains and groups:
 #
-#    mod1 + a, { h, j, k, l }
+#    mod1 + a, { h, j, k, l }:
 #        yabai -m window --focus { west, south, north, east }
 #
-#    mod1 + a, mod1 + { h, j, k, l }
+#    mod1 + a, mod1 + { h, j, k, l }:
 #        yabai -m window --swap { west, south, north, east }
 #
 #
-# TODO: Notes.
-# Explain what notes are; where they are used and how they work.
-# Why this is useful.
+# It is possible to add notes to keybinds. These notes are parsed
+# together with their keybind and will be retrieved alongside the
+# keysym and command. External tools can invoke a command to list
+# this information in json format, allowing them to provide a GUI
+# to display this information.
+#
+# It is possible to have both brief and long notes. To create a
+# simple note, simply use the @ sign, followed by the text you
+# want in your note.
+#
+#    @ Focus window in the given cardinal direction.
+#    mod1 + a, { h, j, k, l }:
+#        yabai -m window --focus { west, south, north, east }
+#
+# To create a longer note, specify @keyword. This keyword will
+# be used to determine where/when the note ends.
+#
+#    @END Focus window in
+#    the given
+#    cardinal direction. END
+#    mod1 + a, { h, j, k, l }:
+#        yabai -m window --focus { west, south, north, east }
+#
+#
+# The symbol : is used to indicate that the following text is
+# a command. When using : the command ends at the first line-
+# break.
+#
+#    mod1 + a, { h, j, k, l }:
+#        yabai -m window --focus { west, south, north, east }
+#
+# For readability purposes, it is possible to have commands span
+# multiple lines, or a block, if you will. This works very similar
+# to notes which we talked about earlier; simply write :keyword.
+# This is useful when writing scripts inline, rather than having
+# to create an external shell-script.
+#
+#    mod3 + n :END
+#        if [[ $(yabai -m query --spaces --display | jq '.[-1]."has-focus"') == "false" ]] then
+#            yabai -m window --space next
+#            yabai -m space --focus next
+#        fi
+#    END
 #
 #
 # TODO: Modifier only keybinds
 # Keybinds that trigger when a modifier key is pressed (and held
 # down for x amount of time) seems like a nice feature.
-# Such keybinds are not eligible for the #repeat activation flag;
-# only #down and #up makes sense here. We likely want these flags
+# Such keybinds are not eligible for the ~repeat activation flag;
+# only ~down and ~up makes sense here. We likely want these flags
 # to work a bit differently; they should be connected as a pair.
-# The #up command should only run if the corresponding #down event
+# The ~up command should only run if the corresponding ~down event
 # passed the activation threshold and executed its command.
 #
-#    cmd #down
+#    cmd ~down:
 #        yabai -m window --drag move.begin
 #
-#    cmd #up
+#    cmd ~up:
 #        yabai -m window --drag move.end
 #
 # Should probably do a syntax pass to accomodate this requirement.
 #
 
-mod1 :: alt
-mod2 :: alt + shift
-mod3 :: alt + cmd
+mod1 = alt
+mod2 = alt + shift
+mod3 = alt + cmd
 
-mod1 + { x, h, j, k, l }
+mod1 + { x, h, j, k, l }:
     yabai -m window --focus { recent, west, south, north, east }
 
-mod2 + { x, h, j, k, l } #down
+mod2 + { x, h, j, k, l } ~down:
     yabai -m window --swap { recent, west, south, north, east }
 
-mod1 + mb1 #down
-    yabai -m window --drag move.begin
+mod1 + mb1 ~down : yabai -m window --drag move.begin
+mod1 + mb1 ~up   : yabai -m window --drag move.end
 
-mod1 + mb1 #up
-    yabai -m window --drag move.end
+mod2 + a ~down ~repeat : yabai -m window --move rel:-20:0
 
-mod2 + a #down #repeat
-    yabai -m window --move rel:-20:0
-
-mod3 + { z, x, c, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }
+@ Focus the given space.
+mod3 + { z, x, c, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }:
     yabai -m space --focus { prev, recent, next, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
 
 @END This is parsed as a note.
@@ -144,5 +181,10 @@ This note will be parsed and connected to the keybind
 that follows. This information can be retrieved and
 fed into external programs to visualize keybinds with
 a description of what they do (as well as listing the command). END
-mod3 + { h, j, k, l }
+mod3 + { h, j, k, l }:
     yabai -m window --warp { west, south, north, east }
+
+ctrl + cmd + {x, z, c } :END
+    yabai -m window --space { recent, prev, next }
+    yabai -m space --focus { recent, prev, next }
+END
