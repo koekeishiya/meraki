@@ -184,7 +184,7 @@ a description of what they do (as well as listing the command). END
 mod3 + { h, j, k, l }:
     yabai -m window --warp { west, south, north, east }
 
-ctrl + cmd + {x, z, c } :END
+ctrl + cmd + { x, z, c } :END
     yabai -m window --space { recent, prev, next }
     yabai -m space --focus { recent, prev, next }
 END
